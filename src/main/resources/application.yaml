@@ -1,0 +1,51 @@
+server:
+  port: 8080
+
+spring:
+  application:
+    name: metadataregistry
+  datasource:
+    url: jdbc:postgresql://localhost:5432/target_db?currentSchema=postgres_metadata
+    username: postgres
+    password: kampus
+    driver-class-name: org.postgresql.Driver
+
+  jpa:
+    hibernate:
+      ddl-auto: none   # validate / update / create / create-drop
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.PostgreSQLDialect
+    show-sql: true
+
+# ????????? ????????? RestTemplate (????? HttpClient)
+#http:
+#  client:
+#    connect-timeout: 5000   # 5 ??????
+#    read-timeout: 10000     # 10 ??????
+
+# URL ??? Orda API
+orda:
+  base-url: http://localhost:8585
+  token: eyJraWQiOiJHYjM4OWEtOWY3Ni1nZGpzLWE5MmotMDI0MmJrOTQzNTYiLCJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJvcGVuLW1ldGFkYXRhLm9yZyIsInN1YiI6InN2cy5uaWsiLCJlbWFpbCI6InN2cy5uaWtAYmsucnUiLCJpc0JvdCI6dHJ1ZSwidG9rZW5UeXBlIjoiQk9UIiwiaWF0IjoxNzU3NTE0MzkzLCJleHAiOm51bGx9.vix5KH-hqiShNaU9pmVh1mmpaRUMTfxk0HwTGQFauEyGLHAoOLhIXXa_hRlELmoijVkCwj6QeQIP50qb21EsPm1bYtKjG9U-FzpALY5LWhdw7KsP7gzXYosnO2Iq0niXCZu-7QP6Vh9edIbDLo-XjZb-OdO2CRlEoZGVBMDC8Ypqz-jjEq0NTwf1VXVu6R6c02BmRlmsipeSkDv6-lOD5QxxuuumSOm76Ga78T7YuLMXT7UYfh9n6VLOraHhYcCrUuOKhNzgOCAiYcZxczijbz0_dwiRSUkPNCQHG2dj5wgnpgJ6VKIxlnTT3LBRSgtzfqEtTQEoCIwGsvxIVzMOXw
+  endpoints:
+    get:
+      services: /api/v1/services/databaseServices
+      databases: /api/v1/databases
+      schemas: /api/v1/databaseSchemas
+      tables: /api/v1/tables
+
+    post:
+      databases: /api/v1/databases
+      schemas: /api/v1/databaseSchemas
+      tables: /api/v1/tables
+      services: /api/v1/services/databaseServices
+
+http:
+  client:
+    connect-timeout: 5000
+    read-timeout: 10000
+
+logging:
+  level:
+    root: INFO
