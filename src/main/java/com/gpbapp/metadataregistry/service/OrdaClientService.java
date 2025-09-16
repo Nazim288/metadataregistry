@@ -15,7 +15,7 @@ import org.springframework.http.HttpEntity;
 public class OrdaClientService {
     private static final Logger log = LoggerFactory.getLogger(OrdaClientService.class);
     private final RestTemplate restTemplate;
-    private final OrdaProperties ordaProperties; // содержит baseUrl и token
+    private final OrdaProperties ordaProperties;
 
     public OrdaClientService(RestTemplate restTemplate, OrdaProperties ordaProperties) {
         this.restTemplate = restTemplate;

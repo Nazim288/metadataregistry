@@ -5,7 +5,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.persistence.AttributeConverter;
 import jakarta.persistence.Converter;
 
-@Converter(autoApply = false) // false, чтобы явно указывать @Convert
+@Converter(autoApply = false)
 public class JsonNodeConverter implements AttributeConverter<JsonNode, String> {
 
     private static final ObjectMapper objectMapper = new ObjectMapper();

@@ -12,10 +12,8 @@ public class JdbcConfig {
     @Bean
     public JdbcTemplate jdbcTemplate(DataSource dataSource) {
         JdbcTemplate jdbcTemplate = new JdbcTemplate(dataSource);
-
-        // Настройки для оптимизации больших запросов
-        jdbcTemplate.setFetchSize(1000); // Размер пачки для потоковой обработки
-        jdbcTemplate.setQueryTimeout(30); // Таймаут 30 секунд
+        jdbcTemplate.setFetchSize(1000);
+        jdbcTemplate.setQueryTimeout(30);
 
         return jdbcTemplate;
     }

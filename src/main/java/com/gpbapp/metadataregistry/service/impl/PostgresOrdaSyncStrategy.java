@@ -95,7 +95,6 @@ public class PostgresOrdaSyncStrategy implements OrdaSyncStrategy {
                     if (!existingSchemas.containsKey(schemaName)) {
                         OrdaSchemaCreateDTO dto = new OrdaSchemaCreateDTO();
                         dto.setName(schemaName);
-                        // FQN базы: service.db
                         dto.setDatabase(dataSource + "." + dbName);
 
                         ordaService.createSchema(dto);
@@ -105,11 +104,11 @@ public class PostgresOrdaSyncStrategy implements OrdaSyncStrategy {
             }
         }
 
-        // 4. Таблицы
+                   // Таблицы
         for (Map.Entry<String, Map<MetadataKey, MetadataColumnDTO>> entry : cache.entrySet()) {
             String dataSource = entry.getKey();
 
-            // группируем колонки по таблицам
+                    // группируем колонки по таблицам
             Map<String, List<MetadataColumnDTO>> grouped =
                     entry.getValue().values().stream()
                             .collect(Collectors.groupingBy(MetadataColumnDTO::getTableName));

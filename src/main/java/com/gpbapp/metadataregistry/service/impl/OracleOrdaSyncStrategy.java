@@ -26,7 +26,6 @@ public class OracleOrdaSyncStrategy implements OrdaSyncStrategy {
     public void sync() {
         Map<String, Map<MetadataKey, MetadataColumnDTO>> cache =
                 metadataCacheService.getMetadataCacheByDbType(OrdaBaseType.ORACLE);
-        // логика отправки в Orda
         System.out.println("Synced Oracle metadata, total sources: " + cache.size());
     }
 }

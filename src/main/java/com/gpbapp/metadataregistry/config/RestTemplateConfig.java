@@ -26,24 +26,20 @@ public class RestTemplateConfig {
 
     @Bean
     public RestTemplate ordaRestTemplate() {
-        // Настройка таймаутов для HttpClient5
         RequestConfig requestConfig = RequestConfig.custom()
-                .setConnectionRequestTimeout(Timeout.ofSeconds(httpClientProperties.getConnectTimeout())) // таймаут получения соединения
-                .setResponseTimeout(Timeout.ofSeconds(httpClientProperties.getReadTimeout()))        // таймаут ответа
+                .setConnectionRequestTimeout(Timeout.ofSeconds(httpClientProperties.getConnectTimeout()))
+                .setResponseTimeout(Timeout.ofSeconds(httpClientProperties.getReadTimeout()))
                 .build();
 
-        // Создаём httpClient с конфигом
         CloseableHttpClient httpClient = HttpClients.custom()
                 .setDefaultRequestConfig(requestConfig)
                 .build();
 
-        // Передаём его в RestTemplate через фабрику
         HttpComponentsClientHttpRequestFactory requestFactory =
                 new HttpComponentsClientHttpRequestFactory(httpClient);
 
         RestTemplate restTemplate = new RestTemplate(requestFactory);
 
-        // Задаём base URL (берём из настроек)
         restTemplate.setUriTemplateHandler(
                 new DefaultUriBuilderFactory(ordaProperties.getBaseUrl())
         );
@@ -55,7 +51,6 @@ public class RestTemplateConfig {
             }
             headers.setAccept(List.of(MediaType.APPLICATION_JSON));
 
-            // Authorization Bearer
             String token = ordaProperties.getToken();
             if (token != null && !token.isBlank()) {
                 headers.setBearerAuth(token);

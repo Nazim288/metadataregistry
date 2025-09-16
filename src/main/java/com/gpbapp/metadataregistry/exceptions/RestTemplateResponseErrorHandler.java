@@ -7,7 +7,6 @@ import java.io.IOException;
 public class RestTemplateResponseErrorHandler extends DefaultResponseErrorHandler {
     @Override
     public void handleError(ClientHttpResponse response) throws IOException {
-        // можно логировать или бросать свои исключения
         System.err.println("Ошибка при вызове Orda API: " + response.getStatusCode());
         super.handleError(response);
     }
