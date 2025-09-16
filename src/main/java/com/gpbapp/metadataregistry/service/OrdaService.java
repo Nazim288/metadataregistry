@@ -14,7 +14,7 @@ import org.springframework.web.client.RestTemplate;
 
 @Service
 public class OrdaService {
-    private static final Logger log = LoggerFactory.getLogger(MetadataCacheService.class);
+    private static final Logger log = LoggerFactory.getLogger(OrdaService.class);
     private final RestTemplate restTemplate;
     private final OrdaProperties ordaProperties;
     private final OrdaEndpointsPost ordaEndpoints;
@@ -32,7 +32,7 @@ public class OrdaService {
     public String createService(OrdaServiceCreateDto dto) {
         try {
             ResponseEntity<String> response =
-                    restTemplate.postForEntity(ordaEndpoints.getDatabases(), dto, String.class);
+                    restTemplate.postForEntity(ordaEndpoints.getServices(), dto, String.class);
             String body = response.getBody();
 
             if (body == null || body.isBlank()) {
@@ -90,17 +90,13 @@ public class OrdaService {
     }
     public String createOrUpdateTable(OrdaTableCreateDTO dto) {
         try {
-            HttpHeaders headers = new HttpHeaders();
-            headers.setContentType(MediaType.APPLICATION_JSON);
-
-            HttpEntity<OrdaTableCreateDTO> requestEntity = new HttpEntity<>(dto, headers);
 
             ResponseEntity<String> response = restTemplate.exchange(
                     ordaEndpoints.getTables(),
                     HttpMethod.PUT,
-                    requestEntity,
+                    new HttpEntity<>(dto), // ✅ Оборачиваем
                     String.class
-            );
+            );;
 
             String body = response.getBody();
 

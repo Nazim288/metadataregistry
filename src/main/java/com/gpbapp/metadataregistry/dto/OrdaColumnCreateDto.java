@@ -38,6 +38,17 @@ public class OrdaColumnCreateDto {
     private String constraint;   // PRIMARY_KEY, UNIQUE, NOT_NULL, NULL (опционально)
     private String description;  // описание (опционально)
 
+    public Integer getDataLength() {
+        return dataLength;
+    }
+
+    public void setDataLength(Integer dataLength) {
+        this.dataLength = dataLength;
+    }
+
+    private Integer dataLength;  // описание (опционально)
+
+
     public OrdaColumnCreateDto() {
     }
 }

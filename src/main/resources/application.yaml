@@ -5,7 +5,7 @@ spring:
   application:
     name: metadataregistry
   datasource:
-    url: jdbc:postgresql://localhost:5432/target_db?currentSchema=postgres_metadata
+    url: jdbc:postgresql://localhost:5432/target_db
     username: postgres
     password: kampus
     driver-class-name: org.postgresql.Driver
@@ -27,7 +27,7 @@ spring:
 # URL ??? Orda API
 orda:
   base-url: http://localhost:8585
-  token: eyJraWQiOiJHYjM4OWEtOWY3Ni1nZGpzLWE5MmotMDI0MmJrOTQzNTYiLCJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJvcGVuLW1ldGFkYXRhLm9yZyIsInN1YiI6InN2cy5uaWsiLCJlbWFpbCI6InN2cy5uaWtAYmsucnUiLCJpc0JvdCI6dHJ1ZSwidG9rZW5UeXBlIjoiQk9UIiwiaWF0IjoxNzU3NTE0MzkzLCJleHAiOm51bGx9.vix5KH-hqiShNaU9pmVh1mmpaRUMTfxk0HwTGQFauEyGLHAoOLhIXXa_hRlELmoijVkCwj6QeQIP50qb21EsPm1bYtKjG9U-FzpALY5LWhdw7KsP7gzXYosnO2Iq0niXCZu-7QP6Vh9edIbDLo-XjZb-OdO2CRlEoZGVBMDC8Ypqz-jjEq0NTwf1VXVu6R6c02BmRlmsipeSkDv6-lOD5QxxuuumSOm76Ga78T7YuLMXT7UYfh9n6VLOraHhYcCrUuOKhNzgOCAiYcZxczijbz0_dwiRSUkPNCQHG2dj5wgnpgJ6VKIxlnTT3LBRSgtzfqEtTQEoCIwGsvxIVzMOXw
+  token: eyJraWQiOiJHYjM4OWEtOWY3Ni1nZGpzLWE5MmotMDI0MmJrOTQzNTYiLCJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJvcGVuLW1ldGFkYXRhLm9yZyIsInN1YiI6InN2cy5uaWsiLCJlbWFpbCI6InN2cy5uaWtAYmsucnUiLCJpc0JvdCI6dHJ1ZSwidG9rZW5UeXBlIjoiQk9UIiwiaWF0IjoxNzU4MDA0NzE0LCJleHAiOm51bGx9.Z9aU428-oa6uHwYSM5xODiQCps6e-1PSSkeebPNNrxtBfapRqtLzgu3K6q9MyVF2fOAxBLr4PrJIjTPz_x5hTuzEjq98TQuoDgFONPJuHW3jr0EkOnOO3dNZc_xKuuLk1GQ8dHDrEH6ImegJFfIy4YrNWesORizHleLZFcsFa9wyj5IjA5LPhZquj3i0whGupuAi9UH1x_q3RjHxFu5foWtCEsqyYk578Ar3H3w_vhu0jzwpJ3o2hNHLVjMCOskcbukbpg0ddFqdas3KNrSe0ho-j1AEmYfr562j4x-QM7GGD5IDTRtDUA2En84RlegzQd6uhcODYW6Pu6IuHmKOeA
   endpoints:
     get:
       services: /api/v1/services/databaseServices
@@ -40,6 +40,11 @@ orda:
       schemas: /api/v1/databaseSchemas
       tables: /api/v1/tables
       services: /api/v1/services/databaseServices
+
+schemas:
+  postgres: postgres_metadata
+  oracle: oracle_metadata
+  mssql: mssql_metadata
 
 http:
   client:

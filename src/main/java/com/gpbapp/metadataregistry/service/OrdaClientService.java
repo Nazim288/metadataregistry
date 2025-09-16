@@ -13,7 +13,7 @@ import org.springframework.http.HttpEntity;
 
 @Service
 public class OrdaClientService {
-    private static final Logger log = LoggerFactory.getLogger(MetadataCacheService.class);
+    private static final Logger log = LoggerFactory.getLogger(OrdaClientService.class);
     private final RestTemplate restTemplate;
     private final OrdaProperties ordaProperties; // содержит baseUrl и token
 
