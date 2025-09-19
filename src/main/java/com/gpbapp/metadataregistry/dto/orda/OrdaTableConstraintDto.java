@@ -1,4 +1,4 @@
-package com.gpbapp.metadataregistry.dto;
+package com.gpbapp.metadataregistry.dto.orda;
 
 import java.util.List;
 

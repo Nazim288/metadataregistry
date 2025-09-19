@@ -1,6 +1,21 @@
-package com.gpbapp.metadataregistry.dto;
+package com.gpbapp.metadataregistry.dto.orda;
 
-public class OrdaDatabaseSchemaDto {
+public class OrdaDbDto {
+    private String id;
+    private String name;
+    private String fullyQualifiedName;
+    private double version;
+    private long updatedAt;
+    private String updatedBy;
+    private String href;
+    private OrdaServiceDto service;
+    private String serviceType;
+    private boolean isDefault; // поле "default" → лучше назвать иначе
+    private boolean deleted;
+
+    public OrdaDbDto() {
+    }
+
     public String getId() {
         return id;
     }
@@ -57,11 +72,11 @@ public class OrdaDatabaseSchemaDto {
         this.href = href;
     }
 
-    public ServiceDto getService() {
+    public OrdaServiceDto getService() {
         return service;
     }
 
-    public void setService(ServiceDto service) {
+    public void setService(OrdaServiceDto service) {
         this.service = service;
     }
 
@@ -73,12 +88,12 @@ public class OrdaDatabaseSchemaDto {
         this.serviceType = serviceType;
     }
 
-    public DatabaseRef getDatabase() {
-        return database;
+    public boolean isDefault() {
+        return isDefault;
     }
 
-    public void setDatabase(DatabaseRef database) {
-        this.database = database;
+    public void setDefault(boolean aDefault) {
+        isDefault = aDefault;
     }
 
     public boolean isDeleted() {
@@ -87,22 +102,5 @@ public class OrdaDatabaseSchemaDto {
 
     public void setDeleted(boolean deleted) {
         this.deleted = deleted;
-    }
-
-    private String id;
-    private String name;
-    private String fullyQualifiedName;
-    private double version;
-    private long updatedAt;
-    private String updatedBy;
-    private String href;
-
-    private ServiceDto service;
-    private String serviceType;
-    private DatabaseRef database;
-
-    private boolean deleted;
-
-    public OrdaDatabaseSchemaDto() {
     }
 }

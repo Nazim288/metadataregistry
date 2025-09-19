@@ -28,7 +28,6 @@ public class MetaData{
     @Column(name = "table_name", nullable = false)
     private String tableName;
 
-    // JSONB лучше хранить как String или JsonNode (Jackson)
     @Column(columnDefinition = "jsonb", nullable = false)
     @Convert(converter = JsonNodeConverter.class)
     private JsonNode data;

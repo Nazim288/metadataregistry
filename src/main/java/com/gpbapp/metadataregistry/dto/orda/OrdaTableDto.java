@@ -1,21 +1,12 @@
-package com.gpbapp.metadataregistry.dto;
+package com.gpbapp.metadataregistry.dto.orda;
 
-public class OrdaDbDto {
-    private String id;
-    private String name;
-    private String fullyQualifiedName;
-    private double version;
-    private long updatedAt;
-    private String updatedBy;
-    private String href;
-    private OrdaServiceDto service;
-    private String serviceType;
-    private boolean isDefault; // поле "default" → лучше назвать иначе
-    private boolean deleted;
+import com.gpbapp.metadataregistry.dto.DatabaseRef;
+import com.gpbapp.metadataregistry.dto.DatabaseSchemaRef;
+import com.gpbapp.metadataregistry.dto.ServiceDto;
 
-    public OrdaDbDto() {
-    }
+import java.util.List;
 
+public class OrdaTableDto {
     public String getId() {
         return id;
     }
@@ -72,11 +63,35 @@ public class OrdaDbDto {
         this.href = href;
     }
 
-    public OrdaServiceDto getService() {
+    public List<OrdaColumnResponsDto> getColumns() {
+        return columns;
+    }
+
+    public void setColumns(List<OrdaColumnResponsDto> columns) {
+        this.columns = columns;
+    }
+
+    public DatabaseSchemaRef getDatabaseSchema() {
+        return databaseSchema;
+    }
+
+    public void setDatabaseSchema(DatabaseSchemaRef databaseSchema) {
+        this.databaseSchema = databaseSchema;
+    }
+
+    public DatabaseRef getDatabase() {
+        return database;
+    }
+
+    public void setDatabase(DatabaseRef database) {
+        this.database = database;
+    }
+
+    public ServiceDto getService() {
         return service;
     }
 
-    public void setService(OrdaServiceDto service) {
+    public void setService(ServiceDto service) {
         this.service = service;
     }
 
@@ -88,19 +103,31 @@ public class OrdaDbDto {
         this.serviceType = serviceType;
     }
 
-    public boolean isDefault() {
-        return isDefault;
-    }
-
-    public void setDefault(boolean aDefault) {
-        isDefault = aDefault;
-    }
-
     public boolean isDeleted() {
         return deleted;
     }
 
     public void setDeleted(boolean deleted) {
         this.deleted = deleted;
+    }
+
+    private String id;
+    private String name;
+    private String fullyQualifiedName;
+    private double version;
+    private long updatedAt;
+    private String updatedBy;
+    private String href;
+
+    private List<OrdaColumnResponsDto> columns;
+
+    private DatabaseSchemaRef databaseSchema;
+    private DatabaseRef database;
+    private ServiceDto service;
+
+    private String serviceType;
+    private boolean deleted;
+
+    public OrdaTableDto() {
     }
 }

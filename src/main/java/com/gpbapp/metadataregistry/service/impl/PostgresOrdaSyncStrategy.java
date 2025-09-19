@@ -1,17 +1,16 @@
 package com.gpbapp.metadataregistry.service.impl;
 
-import com.gpbapp.metadataregistry.common.MetadataKey;
-import com.gpbapp.metadataregistry.dto.*;
+import com.gpbapp.metadataregistry.dto.metadata.DatabaseMetadataDto;
+import com.gpbapp.metadataregistry.dto.metadata.SchemaMetadataDto;
+import com.gpbapp.metadataregistry.dto.metadata.TableMetadataDto;
+import com.gpbapp.metadataregistry.dto.orda.*;
 import com.gpbapp.metadataregistry.enums.OrdaBaseType;
 import com.gpbapp.metadataregistry.enums.OrdaColumnType;
-import com.gpbapp.metadataregistry.service.MetadataCacheService;
-import com.gpbapp.metadataregistry.service.OrdaService;
-import com.gpbapp.metadataregistry.service.OrdaSyncStrategy;
+import com.gpbapp.metadataregistry.service.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 
-import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -20,12 +19,16 @@ import java.util.stream.Collectors;
 public class PostgresOrdaSyncStrategy implements OrdaSyncStrategy {
     private static final Logger log = LoggerFactory.getLogger(PostgresOrdaSyncStrategy.class);
 
-    private final MetadataCacheService metadataCacheService;
+    private final MetadataService metadataService;
     private final OrdaService ordaService;
+    private final OrdaCache ordaCache;
 
-    public PostgresOrdaSyncStrategy(MetadataCacheService metadataCacheService, OrdaService ordaService) {
-        this.metadataCacheService = metadataCacheService;
+    public PostgresOrdaSyncStrategy(MetadataService metadataService,
+                                    OrdaService ordaService,
+                                    OrdaCache ordaCache) {
+        this.metadataService = metadataService;
         this.ordaService = ordaService;
+        this.ordaCache = ordaCache;
     }
 
     @Override
@@ -35,124 +38,80 @@ public class PostgresOrdaSyncStrategy implements OrdaSyncStrategy {
 
     @Override
     public void sync() {
-        Map<String, Map<MetadataKey, MetadataColumnDTO>> cache =
-                metadataCacheService.getMetadataCacheByDbType(OrdaBaseType.POSTGRES);
+        log.info("Start syncing Postgres metadata to Orda...");
+        Map<String, DatabaseMetadataDto> dbs = metadataService.getAllDatabasesBySchema("postgres_metadata");
+         // --- сервисы сперва
+        Set<String> serviceNames = dbs.values().stream()
+                .map(DatabaseMetadataDto::getServiceName)
+                .collect(Collectors.toSet());
 
-        log.info("Start syncing Postgres metadata to Orda. DataSources={}", cache.size());
-
-        Map<String, DatabaseDto> existingServices =
-                ordaService.getServices().stream()
-                        .collect(Collectors.toMap(DatabaseDto::getName, s -> s, (a, b) -> a));
-
-        Map<String, OrdaTableDto> existingDatabases =
-                ordaService.getDatabase().stream()
-                        .collect(Collectors.toMap(OrdaTableDto::getName, d -> d, (a, b) -> a));
-
-        Map<String, OrdaDatabaseSchemaDto> existingSchemas =
-                ordaService.getSchema().stream()
-                        .collect(Collectors.toMap(OrdaDatabaseSchemaDto::getName, s -> s, (a, b) -> a));
-
-        for (String dataSource : cache.keySet()) {
-            if (!existingServices.containsKey(dataSource)) {
+        serviceNames.forEach(serviceName -> {
+            if (!ordaCache.getServices().containsKey(serviceName)) {
                 OrdaServiceCreateDto dto = new OrdaServiceCreateDto();
-                dto.setName(dataSource);
+                dto.setName(serviceName);
                 dto.setServiceType("Postgres");
-                dto.setDescription("Auto-synced Postgres service " + dataSource);
-                ordaService.createService(dto);
-                log.info("Created service {}", dataSource);
+                dto.setDescription("Auto-synced Postgres service " + serviceName);
+
+                OrdaServiceDto created = ordaService.createService(dto);
+                ordaCache.putService(created);
+                log.info("Created service {}", serviceName);
             }
-        }
+        });
 
-        for (Map.Entry<String, Map<MetadataKey, MetadataColumnDTO>> entry : cache.entrySet()) {
-            String dataSource = entry.getKey();
+        // --- 1. Базы ---
+        dbs.values().forEach(db -> {
+            if (!ordaCache.getDatabases().containsKey(db.getFqn())) {
+                OrdaBaseCreateDto dto = new OrdaBaseCreateDto();
+                dto.setName(db.getName());
+                dto.setService(db.getServiceName());
 
-            Set<String> dbNames = entry.getValue().keySet().stream()
-                    .map(MetadataKey::getDbName)
-                    .collect(Collectors.toSet());
-
-            for (String dbName : dbNames) {
-                if (!existingDatabases.containsKey(dbName)) {
-                    OrdaBaseCreateDto dto = new OrdaBaseCreateDto();
-                    dto.setName(dbName);
-                    dto.setService(dataSource); // сервис берём из ключа Map
-                    ordaService.createDatabase(dto);
-                    log.info("Created database {} in service {}", dbName, dataSource);
-                }
+                OrdaDbDto created = ordaService.createDatabase(dto);
+                ordaCache.putDatabase(created);
+                log.info("Created database {} in service {}", db.getName(), db.getServiceName());
             }
-        }
+        });
 
-        for (Map.Entry<String, Map<MetadataKey, MetadataColumnDTO>> entry : cache.entrySet()) {
-            String dataSource = entry.getKey();
+        // --- 2. Схемы ---
+        Map<String, SchemaMetadataDto> schemas = metadataService.getAllSchemasBySchema("postgres_metadata");
+        schemas.values().forEach(schema -> {
+            if (!ordaCache.getSchemas().containsKey(schema.getFqn())) {
+                OrdaSchemaCreateDTO dto = new OrdaSchemaCreateDTO();
+                dto.setName(schema.getName());
+                dto.setDatabase(schema.getParent_fqn());
 
-            Map<String, Set<String>> dbSchemas = entry.getValue().keySet().stream()
-                    .collect(Collectors.groupingBy(MetadataKey::getDbName,
-                            Collectors.mapping(MetadataKey::getSchemaName, Collectors.toSet())));
-
-            for (Map.Entry<String, Set<String>> dbSchemasEntry : dbSchemas.entrySet()) {
-                String dbName = dbSchemasEntry.getKey();
-
-                for (String schemaName : dbSchemasEntry.getValue()) {
-                    if (!existingSchemas.containsKey(schemaName)) {
-                        OrdaSchemaCreateDTO dto = new OrdaSchemaCreateDTO();
-                        dto.setName(schemaName);
-                        dto.setDatabase(dataSource + "." + dbName);
-
-                        ordaService.createSchema(dto);
-                        log.info("Created schema {} in database {}", schemaName, dbName);
-                    }
-                }
+                OrdaDatabaseSchemaDto created = ordaService.createSchema(dto);
+                ordaCache.putSchema(created);
+                log.info("Created schema {} in database {}", schema.getName(), schema.getDbName());
             }
-        }
+        });
 
-                   // Таблицы
-        for (Map.Entry<String, Map<MetadataKey, MetadataColumnDTO>> entry : cache.entrySet()) {
-            String dataSource = entry.getKey();
-
-                    // группируем колонки по таблицам
-            Map<String, List<MetadataColumnDTO>> grouped =
-                    entry.getValue().values().stream()
-                            .collect(Collectors.groupingBy(MetadataColumnDTO::getTableName));
-
-            for (Map.Entry<String, List<MetadataColumnDTO>> tableEntry : grouped.entrySet()) {
-                String tableName = tableEntry.getKey();
-                List<MetadataColumnDTO> columns = tableEntry.getValue();
-
+        // --- 3. Таблицы ---
+        Map<String, TableMetadataDto> tables = metadataService.getAllTablesBySchema("postgres_metadata");
+        tables.values().forEach(table -> {
+            if (!ordaCache.getTables().containsKey(table.getFqn())) {
                 OrdaTableCreateDTO tableDto = new OrdaTableCreateDTO();
-                tableDto.setName(tableName);
-
-                String dbName = columns.getFirst().getDbName();
-                String schemaName = columns.getFirst().getSchemaName();
-
-                tableDto.setDatabaseSchema(dataSource + "." + dbName + "." + schemaName);
+                tableDto.setName(table.getName());
+                tableDto.setDatabaseSchema(table.getParentFqn());
+                tableDto.setDescription(table.getDescription());
 
                 tableDto.setColumns(
-                        columns.stream()
-                                .map(c -> {
-                                    OrdaColumnCreateDto col = new OrdaColumnCreateDto();
-                                    col.setName(c.getColumnName());
-
-                                    // нормализуем тип
-                                    String normalizedType = OrdaColumnType.map(c.getDataType());
-                                    col.setDataType(normalizedType);
-
-                                    // dataLength только для текстовых/двоичных типов
-                                    if ("VARCHAR".equalsIgnoreCase(normalizedType)
-                                            || "CHAR".equalsIgnoreCase(normalizedType)
-                                            || "VARBINARY".equalsIgnoreCase(normalizedType)
-                                            || "BINARY".equalsIgnoreCase(normalizedType)) {
-                                        col.setDataLength(255);
-                                    }
-
-                                    return col;
-                                })
-                                .toList()
+                        table.getData().getColumns().stream().map(c -> {
+                            OrdaColumnCreateDto col = new OrdaColumnCreateDto();
+                            col.setName(c.getFqn().substring(c.getFqn().lastIndexOf('.') + 1));
+                            col.setDataType(OrdaColumnType.map(c.getDtype()));
+                            col.setDataLength(c.getDataLength());
+                            col.setDescription(c.getDescription());
+                            return col;
+                        }).toList()
                 );
 
-                ordaService.createOrUpdateTable(tableDto);
-                log.info("Created/Updated table {}.{} in {}", schemaName, tableName, dataSource);
+                OrdaTableDto created = ordaService.createTable(tableDto);
+                ordaCache.putTable(created);
+                log.info("Created table {} in schema {}", table.getName(), table.getSchemaName());
             }
-        }
+        });
 
-        log.info("Postgres sync finished");
+        log.info(" Postgres sync finished");
     }
 }
+

@@ -1,6 +1,8 @@
 package com.gpbapp.metadataregistry.service;
 
 import com.gpbapp.metadataregistry.dto.*;
+import com.gpbapp.metadataregistry.dto.orda.*;
+import com.gpbapp.metadataregistry.properties.OrdaEndpointsGet;
 import com.gpbapp.metadataregistry.properties.OrdaEndpointsPost;
 import com.gpbapp.metadataregistry.properties.OrdaProperties;
 import org.slf4j.Logger;
@@ -10,97 +12,119 @@ import org.springframework.stereotype.Service;
 import java.util.List;
 
 import org.springframework.web.client.RestTemplate;
+import org.springframework.web.util.UriComponentsBuilder;
 
 
 @Service
 public class OrdaService {
     private static final Logger log = LoggerFactory.getLogger(OrdaService.class);
-    private final RestTemplate restTemplate;
-    private final OrdaProperties ordaProperties;
-    private final OrdaEndpointsPost ordaEndpoints;
-    private final OrdaClientService ordaClientService;
 
-    public OrdaService(RestTemplate restTemplate, OrdaProperties ordaProperties, OrdaEndpointsPost ordaEndpoints, OrdaClientService ordaClientService) {
+    public OrdaService(RestTemplate restTemplate, OrdaProperties ordaProperties, OrdaEndpointsPost ordaEndpointsPost, OrdaEndpointsGet ordaEndpointsGet, OrdaClientService ordaClientService) {
         this.restTemplate = restTemplate;
         this.ordaProperties = ordaProperties;
-        this.ordaEndpoints = ordaEndpoints;
+        this.ordaEndpointsPost = ordaEndpointsPost;
+        this.ordaEndpointsGet = ordaEndpointsGet;
         this.ordaClientService = ordaClientService;
     }
 
+    private final RestTemplate restTemplate;
+    private final OrdaProperties ordaProperties;
+    private final OrdaEndpointsPost ordaEndpointsPost;
+    private final OrdaEndpointsGet ordaEndpointsGet;
+    private final OrdaClientService ordaClientService;
 
 
-    public String createService(OrdaServiceCreateDto dto) {
+
+
+    public OrdaServiceDto createService(OrdaServiceCreateDto dto) {
         try {
-            ResponseEntity<String> response =
-                    restTemplate.postForEntity(ordaEndpoints.getServices(), dto, String.class);
-            String body = response.getBody();
+            ResponseEntity<OrdaServiceDto> response =
+                    restTemplate.postForEntity(
+                            ordaEndpointsPost.getServices(),
+                            dto,
+                            OrdaServiceDto.class
+                    );
 
-            if (body == null || body.isBlank()) {
+            OrdaServiceDto body = response.getBody();
+            if (body == null) {
+                throw new IllegalStateException("Создание сервиса: пустой ответ от Orda");
+            }
+
+            return body;
+        } catch (Exception e) {
+            throw new RuntimeException("Ошибка при создании сервиса в Orda", e);
+        }
+    }
+
+
+    public OrdaDbDto createDatabase(OrdaBaseCreateDto requestDto) {
+        try {
+            ResponseEntity<OrdaDbDto> response =
+                    restTemplate.postForEntity(
+                            ordaEndpointsPost.getDatabases(),
+                            requestDto,
+                            OrdaDbDto.class
+                    );
+
+            OrdaDbDto body = response.getBody();
+            if (body == null) {
                 throw new IllegalStateException("Создание базы: пустой ответ от Orda");
             }
-            return response.getBody();
+            return body;
         } catch (Exception e) {
             throw new RuntimeException("Ошибка при создании базы в Orda", e);
         }
     }
 
-    public String createDatabase(OrdaBaseCreateDto requestDto) {
+    public OrdaDatabaseSchemaDto createSchema(OrdaSchemaCreateDTO dto) {
         try {
-            ResponseEntity<String> response =
-                    restTemplate.postForEntity(ordaEndpoints.getDatabases(), requestDto, String.class);
-            String body = response.getBody();
+            ResponseEntity<OrdaDatabaseSchemaDto> response =
+                    restTemplate.postForEntity(
+                            ordaEndpointsPost.getSchemas(),
+                            dto,
+                            OrdaDatabaseSchemaDto.class
+                    );
 
-            if (body == null || body.isBlank()) {
-                throw new IllegalStateException("Создание базы: пустой ответ от Orda");
+            OrdaDatabaseSchemaDto body = response.getBody();
+            if (body == null) {
+                throw new IllegalStateException("Создание схемы: пустой ответ от Orda");
             }
-            return response.getBody();
+            return body;
         } catch (Exception e) {
-            throw new RuntimeException("Ошибка при создании базы в Orda", e);
+            throw new RuntimeException("Ошибка при создании схемы в Orda", e);
         }
     }
 
-    public String createSchema(OrdaSchemaCreateDTO dto) {
+    public OrdaTableDto createTable(OrdaTableCreateDTO dto) {
         try {
-            ResponseEntity<String> response =
-                    restTemplate.postForEntity(ordaEndpoints.getSchemas(), dto, String.class);
-            String body = response.getBody();
+            ResponseEntity<OrdaTableDto> response =
+                    restTemplate.postForEntity(
+                            ordaEndpointsPost.getTables(),
+                            dto,
+                            OrdaTableDto.class
+                    );
 
-            if (body == null || body.isBlank()) {
-                throw new IllegalStateException("Создание базы: пустой ответ от Orda");
+            OrdaTableDto body = response.getBody();
+            if (body == null) {
+                throw new IllegalStateException("Создание таблицы: пустой ответ от Orda");
             }
-            return response.getBody();
+            return body;
         } catch (Exception e) {
-            throw new RuntimeException("Ошибка при создании базы в Orda", e);
+            throw new RuntimeException("Ошибка при создании таблицы в Orda", e);
         }
     }
 
-    public String createTable(OrdaTableCreateDTO dto) {
+    public OrdaTableDto createOrUpdateTable(OrdaTableCreateDTO dto) {
         try {
-            ResponseEntity<String> response =
-                    restTemplate.postForEntity(ordaEndpoints.getTables(), dto, String.class);
-            String body = response.getBody();
-
-            if (body == null || body.isBlank()) {
-                throw new IllegalStateException("Создание базы: пустой ответ от Orda");
-            }
-            return response.getBody();
-        } catch (Exception e) {
-            throw new RuntimeException("Ошибка при создании базы в Orda", e);
-        }
-    }
-    public String createOrUpdateTable(OrdaTableCreateDTO dto) {
-        try {
-
-            ResponseEntity<String> response = restTemplate.exchange(
-                    ordaEndpoints.getTables(),
+            ResponseEntity<OrdaTableDto> response = restTemplate.exchange(
+                    ordaEndpointsPost.getTables(),
                     HttpMethod.PUT,
-                    new HttpEntity<>(dto), // ✅ Оборачиваем
-                    String.class
-            );;
+                    new HttpEntity<>(dto),
+                    OrdaTableDto.class
+            );
 
-            String body = response.getBody();
-
-            if (body == null || body.isBlank()) {
+            OrdaTableDto body = response.getBody();
+            if (body == null) {
                 throw new IllegalStateException("Создание/обновление таблицы: пустой ответ от Orda");
             }
             return body;
@@ -109,26 +133,46 @@ public class OrdaService {
         }
     }
 
-    public List<DatabaseDto> getServices() {
-        OrdaServicesResponseDto response = restTemplate.getForObject(ordaEndpoints.getServices(), OrdaServicesResponseDto.class);
+    public List<OrdaServiceDto> getServices() {
+        OrdaServicesResponseDto response = restTemplate.getForObject(ordaEndpointsGet.getServices(), OrdaServicesResponseDto.class);
         return response != null ? response.getData() : List.of();
     }
 
 
-    public List<OrdaTableDto> getTable() {
-        OrdaTablesResponseDto response = restTemplate.getForObject(ordaEndpoints.getTables(), OrdaTablesResponseDto.class);
+    public List<OrdaTableDto> getTables() {
+        UriComponentsBuilder builder = UriComponentsBuilder
+                .fromUriString(ordaEndpointsGet.getTables())
+                .queryParam("limit", 1000000);
+
+        OrdaTablesResponseDto response = restTemplate.getForObject(builder.toUriString(), OrdaTablesResponseDto.class);
+
         return response != null ? response.getData() : List.of();
 
     }
 
-    public List<OrdaDatabaseSchemaDto> getSchema() {
-        OrdaSchemasResponseDto response = restTemplate.getForObject(ordaEndpoints.getSchemas(), OrdaSchemasResponseDto.class);
+    public OrdaTablesResponseDto getTablesPage(int limit, String after) {
+        UriComponentsBuilder builder = UriComponentsBuilder
+                .fromUriString(ordaEndpointsGet.getTables())
+                .queryParam("limit", limit);
+
+        if (after != null && !after.isBlank()) {
+            builder.queryParam("after", after);
+        }
+
+        return restTemplate.getForObject(
+                builder.toUriString(),
+                OrdaTablesResponseDto.class
+        );
+    }
+
+    public List<OrdaDatabaseSchemaDto> getSchemas() {
+        OrdaSchemasResponseDto response = restTemplate.getForObject(ordaEndpointsGet.getSchemas(), OrdaSchemasResponseDto.class);
         return response != null ? response.getData() : List.of();
 
     }
 
-    public  List<OrdaTableDto> getDatabase() {
-        OrdaTablesResponseDto response = restTemplate.getForObject(ordaEndpoints.getDatabases(), OrdaTablesResponseDto.class);
+    public  List<OrdaDbDto> getDatabases() {
+        OrdaDatabaseResponseDto response = restTemplate.getForObject(ordaEndpointsGet.getDatabases(), OrdaDatabaseResponseDto.class);
         return response != null ? response.getData() : List.of();
 
     }

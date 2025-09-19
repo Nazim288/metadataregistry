@@ -1,6 +1,6 @@
 package com.gpbapp.metadataregistry.controller;
 
-import com.gpbapp.metadataregistry.dto.*;
+import com.gpbapp.metadataregistry.dto.orda.*;
 import com.gpbapp.metadataregistry.service.OrdaService;
 import org.springframework.web.bind.annotation.*;
 
@@ -9,51 +9,57 @@ import java.util.List;
 @RestController
 @RequestMapping("/orda")
 public class OrdaController {
-    private final OrdaService ordaService;
     public OrdaController(OrdaService ordaService) {
         this.ordaService = ordaService;
     }
 
+    private final OrdaService ordaService;
+
     @PostMapping("/databases")
-    public String createDatabase(@RequestBody OrdaBaseCreateDto request) {
+    public OrdaDbDto createDatabase(@RequestBody OrdaBaseCreateDto request) {
         return ordaService.createDatabase(request);
     }
 
     @PostMapping("/schemas")
-    public String createSchema(@RequestBody OrdaSchemaCreateDTO request) {
+    public OrdaDatabaseSchemaDto createSchema(@RequestBody OrdaSchemaCreateDTO request) {
         return ordaService.createSchema(request);
     }
 
     @PostMapping("/tables")
-    public String createTable(@RequestBody OrdaTableCreateDTO request) {
+    public OrdaTableDto createTable(@RequestBody OrdaTableCreateDTO request) {
         return ordaService.createTable(request);
     }
 
     @PutMapping("/tables")
-    public String updateTable(@RequestBody OrdaTableCreateDTO request) {
+    public OrdaTableDto updateTable(@RequestBody OrdaTableCreateDTO request) {
         return ordaService.createOrUpdateTable(request);
     }
 
     @PostMapping("/orda-services")
-    public  String createServices(OrdaServiceCreateDto dto) {
+    public  OrdaServiceDto createServices(OrdaServiceCreateDto dto) {
         return ordaService.createService(dto);
     }
 
 
     @GetMapping("/orda-services")
-    public  List<DatabaseDto> getAllOrdaServices() {
+    public  List<OrdaServiceDto> getAllOrdaServices() {
         return ordaService.getServices();
     }
+
     @GetMapping("/databases")
-    public  List<OrdaTableDto> getAllDatabases() {
-        return ordaService.getDatabase();
+    public  List<OrdaDbDto> getAllDatabases() {
+        List<OrdaDbDto> database = ordaService.getDatabases();
+        return database;
     }
     @GetMapping("/schemas")
     public  List<OrdaDatabaseSchemaDto> getAllSchemas() {
-        return ordaService.getSchema();
+        return ordaService.getSchemas();
     }
+
     @GetMapping("/tables")
     public  List<OrdaTableDto> getAllTables() {
-        return ordaService.getTable();
+        return ordaService.getTables();
     }
+
+
 }

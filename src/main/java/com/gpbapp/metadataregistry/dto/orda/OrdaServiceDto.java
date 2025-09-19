@@ -1,4 +1,4 @@
-package com.gpbapp.metadataregistry.dto;
+package com.gpbapp.metadataregistry.dto.orda;
 
 public class OrdaServiceDto {
     private String id;

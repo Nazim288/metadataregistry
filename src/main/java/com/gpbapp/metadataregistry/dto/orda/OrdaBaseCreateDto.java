@@ -1,4 +1,4 @@
-package com.gpbapp.metadataregistry.dto;
+package com.gpbapp.metadataregistry.dto.orda;
 
 public class OrdaBaseCreateDto {
     public OrdaBaseCreateDto(String name, String service) {

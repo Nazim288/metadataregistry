@@ -1,4 +1,4 @@
-package com.gpbapp.metadataregistry.dto;
+package com.gpbapp.metadataregistry.dto.orda;
 
 import java.util.List;
 
@@ -7,6 +7,16 @@ public class OrdaTableCreateDTO {
     private List<OrdaColumnCreateDto> columns;       // список колонок
     private List<OrdaTableConstraintDto> tableConstraints; // ограничения (например FK)
     private String databaseSchema;               // FQN схемы (service.database.schema)
+
+    public String getDescription() {
+        return description;
+    }
+
+    public void setDescription(String description) {
+        this.description = description;
+    }
+
+    private String description;               // FQN схемы (service.database.schema)
 
     public OrdaTableCreateDTO() {
     }

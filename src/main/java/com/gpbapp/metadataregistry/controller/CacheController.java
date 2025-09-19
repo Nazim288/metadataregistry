@@ -1,10 +1,10 @@
 package com.gpbapp.metadataregistry.controller;
 
-import com.gpbapp.metadataregistry.enums.OrdaBaseType;
-
-import com.gpbapp.metadataregistry.service.OrdaSyncService;
+import com.gpbapp.metadataregistry.service.OrdaCacheInitializer;
+import com.gpbapp.metadataregistry.service.OrdaCacheService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -13,19 +13,29 @@ import org.springframework.web.bind.annotation.RestController;
 @RequestMapping("/cache")
 public class CacheController {
 
-    private final OrdaSyncService ordaSyncService;
-
-    public CacheController(OrdaSyncService ordaSyncService) {
-        this.ordaSyncService = ordaSyncService;
+    public CacheController(OrdaCacheService cacheService, OrdaCacheInitializer cacheInitializer) {
+        this.cacheService = cacheService;
+        this.cacheInitializer = cacheInitializer;
     }
 
-    @PostMapping("/refresh")
-    public ResponseEntity<String> refreshCache(OrdaBaseType type) {
+    private final OrdaCacheService cacheService;
+    private final OrdaCacheInitializer cacheInitializer;
+
+
+    @GetMapping("/size")
+    public ResponseEntity<String> getSizeCache() {
         try {
-            ordaSyncService.ordaSync(type);
-            return ResponseEntity.ok(String.format("Кэш для баз данных типа %s обновлён успешно", type.name()));
+            String size = cacheService.getSize();
+            return ResponseEntity.ok(size);
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Ошибка при обновлении кеша");
         }
     }
+
+    @PostMapping("/cache/init")
+    public ResponseEntity<String> initCache() {
+        cacheInitializer.init();
+        return ResponseEntity.ok("✅ Orda cache initialized manually");
+    }
+
 }

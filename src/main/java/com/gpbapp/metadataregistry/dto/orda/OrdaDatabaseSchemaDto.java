@@ -1,8 +1,23 @@
-package com.gpbapp.metadataregistry.dto;
+package com.gpbapp.metadataregistry.dto.orda;
 
-import java.util.List;
+import com.gpbapp.metadataregistry.dto.DatabaseRef;
+import com.gpbapp.metadataregistry.dto.ServiceDto;
 
-public class OrdaTableDto {
+public class OrdaDatabaseSchemaDto {
+
+    private String id;
+    private String name;
+    private String fullyQualifiedName;
+    private double version;
+    private long updatedAt;
+    private String updatedBy;
+    private String href;
+
+    private ServiceDto service;
+    private String serviceType;
+    private DatabaseRef database;
+
+    private boolean deleted;
     public String getId() {
         return id;
     }
@@ -59,30 +74,6 @@ public class OrdaTableDto {
         this.href = href;
     }
 
-    public List<OrdaColumnResponsDto> getColumns() {
-        return columns;
-    }
-
-    public void setColumns(List<OrdaColumnResponsDto> columns) {
-        this.columns = columns;
-    }
-
-    public DatabaseSchemaRef getDatabaseSchema() {
-        return databaseSchema;
-    }
-
-    public void setDatabaseSchema(DatabaseSchemaRef databaseSchema) {
-        this.databaseSchema = databaseSchema;
-    }
-
-    public DatabaseRef getDatabase() {
-        return database;
-    }
-
-    public void setDatabase(DatabaseRef database) {
-        this.database = database;
-    }
-
     public ServiceDto getService() {
         return service;
     }
@@ -99,6 +90,14 @@ public class OrdaTableDto {
         this.serviceType = serviceType;
     }
 
+    public DatabaseRef getDatabase() {
+        return database;
+    }
+
+    public void setDatabase(DatabaseRef database) {
+        this.database = database;
+    }
+
     public boolean isDeleted() {
         return deleted;
     }
@@ -107,23 +106,6 @@ public class OrdaTableDto {
         this.deleted = deleted;
     }
 
-    private String id;
-    private String name;
-    private String fullyQualifiedName;
-    private double version;
-    private long updatedAt;
-    private String updatedBy;
-    private String href;
-
-    private List<OrdaColumnResponsDto> columns;
-
-    private DatabaseSchemaRef databaseSchema;
-    private DatabaseRef database;
-    private ServiceDto service;
-
-    private String serviceType;
-    private boolean deleted;
-
-    public OrdaTableDto() {
+    public OrdaDatabaseSchemaDto() {
     }
 }
