@@ -5,6 +5,17 @@ import java.util.List;
 public class OrdaSchemasResponseDto {
     private List<OrdaDatabaseSchemaDto> data;
 
+    public OrdaPagingDto getPaging() {
+        return paging;
+    }
+
+    public void setPaging(OrdaPagingDto paging) {
+        this.paging = paging;
+    }
+
+    private OrdaPagingDto paging;
+
+
 
     public OrdaSchemasResponseDto() {
     }

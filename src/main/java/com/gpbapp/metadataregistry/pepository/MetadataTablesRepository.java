@@ -38,14 +38,44 @@ public class MetadataTablesRepository {
         ORDER BY created_at DESC
     """;
 
+    /**
+     * Получение всех таблиц по схеме
+     */
     public List<TableMetadataDto> findAllBySchema(String schemaName) {
         String sql = String.format(TABLE_METADATA_QUERY_TEMPLATE, schemaName);
         return jdbcTemplate.query(sql, (rs, rowNum) -> mapRow(rs));
     }
 
+    /**
+     * Пагинация по таблицам из schemaName
+     */
     public List<TableMetadataDto> findPageBySchema(String schemaName, int limit, int offset) {
         String sql = String.format(TABLE_METADATA_QUERY_TEMPLATE, schemaName) + " LIMIT ? OFFSET ?";
         return jdbcTemplate.query(sql, (rs, rowNum) -> mapRow(rs), limit, offset);
+    }
+
+    /**
+     * Получение всех таблиц по схеме и сервису
+     */
+    public List<TableMetadataDto> findAllBySchemaAndService(String schemaName, String serviceName) {
+        String sql = String.format("""
+            SELECT id,
+                   fqn,
+                   name,
+                   parent_fqn,
+                   service_name,
+                   db_name,
+                   schema_name,
+                   description,
+                   data,
+                   hash_data,
+                   created_at
+            FROM %s.table_metadata
+            WHERE service_name = ?
+            ORDER BY created_at DESC
+        """, schemaName);
+
+        return jdbcTemplate.query(sql, ps -> ps.setString(1, serviceName), (rs, rowNum) -> mapRow(rs));
     }
 
     private TableMetadataDto mapRow(ResultSet rs) throws SQLException {
@@ -79,4 +109,3 @@ public class MetadataTablesRepository {
         return dto;
     }
 }
-

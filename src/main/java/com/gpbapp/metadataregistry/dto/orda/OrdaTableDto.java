@@ -7,6 +7,20 @@ import com.gpbapp.metadataregistry.dto.ServiceDto;
 import java.util.List;
 
 public class OrdaTableDto {
+    private String id;
+    private String name;
+    private String fullyQualifiedName;
+    private double version;
+    private long updatedAt;
+    private String updatedBy;
+    private String href;
+    private List<OrdaColumnResponsDto> columns;
+    private DatabaseSchemaRef databaseSchema;
+    private DatabaseRef database;
+    private ServiceDto service;
+    private String serviceType;
+    private boolean deleted;
+
     public String getId() {
         return id;
     }
@@ -110,24 +124,6 @@ public class OrdaTableDto {
     public void setDeleted(boolean deleted) {
         this.deleted = deleted;
     }
-
-    private String id;
-    private String name;
-    private String fullyQualifiedName;
-    private double version;
-    private long updatedAt;
-    private String updatedBy;
-    private String href;
-
-    private List<OrdaColumnResponsDto> columns;
-
-    private DatabaseSchemaRef databaseSchema;
-    private DatabaseRef database;
-    private ServiceDto service;
-
-    private String serviceType;
-    private boolean deleted;
-
     public OrdaTableDto() {
     }
 }

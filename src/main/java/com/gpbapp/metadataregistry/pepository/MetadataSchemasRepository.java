@@ -13,7 +13,7 @@ import java.util.List;
 public class MetadataSchemasRepository {
 
     private final JdbcTemplate jdbcTemplate;
-    private final ObjectMapper objectMapper; // оставим, пригодится в table_metadata для json
+    private final ObjectMapper objectMapper;
 
     public MetadataSchemasRepository(JdbcTemplate jdbcTemplate, ObjectMapper objectMapper) {
         this.jdbcTemplate = jdbcTemplate;
@@ -35,13 +35,31 @@ public class MetadataSchemasRepository {
 
     /**
      * Получение всех записей из таблицы schema_metadata по схеме
-     *
-     * @param schemaName имя схемы (например: postgres_metadata)
-     * @return список объектов SchemaMetadataDto
      */
     public List<SchemaMetadataDto> findAllBySchema(String schemaName) {
         String sql = String.format(SCHEMA_METADATA_QUERY_TEMPLATE, schemaName);
         return jdbcTemplate.query(sql, (rs, rowNum) -> mapRow(rs));
+    }
+
+    /**
+     * Получение всех записей из таблицы schema_metadata по схеме и service_name
+     */
+    public List<SchemaMetadataDto> findAllBySchemaAndService(String schemaName, String serviceName) {
+        String sql = String.format("""
+            SELECT id,
+                   fqn,
+                   name,
+                   parent_fqn,
+                   service_name,
+                   db_name,
+                   hash_data,
+                   created_at
+            FROM %s.schema_metadata
+            WHERE service_name = ?
+            ORDER BY created_at DESC
+        """, schemaName);
+
+        return jdbcTemplate.query(sql, ps -> ps.setString(1, serviceName), (rs, rowNum) -> mapRow(rs));
     }
 
     private SchemaMetadataDto mapRow(ResultSet rs) throws SQLException {
@@ -59,5 +77,3 @@ public class MetadataSchemasRepository {
         );
     }
 }
-
-

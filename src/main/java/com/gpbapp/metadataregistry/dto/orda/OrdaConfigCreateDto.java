@@ -1,52 +1,20 @@
 package com.gpbapp.metadataregistry.dto.orda;
 
 public class OrdaConfigCreateDto {
-    public String getType() {
-        return type;
-    }
+    private ConfigDto config = new ConfigDto();
 
-    public void setType(String type) {
-        this.type = type;
+    public OrdaConfigCreateDto(ConfigDto config) {
+        this.config = config;
     }
-
-    public String getHostPort() {
-        return hostPort;
-    }
-
-    public void setHostPort(String hostPort) {
-        this.hostPort = hostPort;
-    }
-
-    public String getUsername() {
-        return username;
-    }
-
-    public void setUsername(String username) {
-        this.username = username;
-    }
-
-    public String getPassword() {
-        return password;
-    }
-
-    public void setPassword(String password) {
-        this.password = password;
-    }
-
-    public String getDatabase() {
-        return database;
-    }
-
-    public void setDatabase(String database) {
-        this.database = database;
-    }
-
-    private String type;      // Postgres, Mssql, etc.
-    private String hostPort;  // host:port
-    private String username;
-    private String password;
-    private String database;
 
     public OrdaConfigCreateDto() {
+    }
+
+    public ConfigDto getConfig() {
+        return config;
+    }
+
+    public void setConfig(ConfigDto config) {
+        this.config = config;
     }
 }

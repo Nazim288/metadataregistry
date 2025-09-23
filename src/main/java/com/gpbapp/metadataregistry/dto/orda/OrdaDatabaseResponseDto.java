@@ -6,6 +6,17 @@ public class OrdaDatabaseResponseDto {
     private List<OrdaDbDto> data;
     private String name;
 
+    public OrdaPagingDto getPaging() {
+        return paging;
+    }
+
+    public void setPaging(OrdaPagingDto paging) {
+        this.paging = paging;
+    }
+
+    private OrdaPagingDto paging;
+
+
     public String getName() {
         return name;
     }

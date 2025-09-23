@@ -53,21 +53,21 @@ public class OrdaCacheInitializer implements ApplicationRunner {
     }
 
     private void loadServices() {
-        List<OrdaServiceDto> services = ordaService.getServices();
-        services.forEach(ordaCache::putService);
-        log.info("Loaded {} services into cache", services.size());
+        OrdaServicesResponseDto response = ordaService.getServices();
+        response.getData().forEach(ordaCache::putService);
+        log.info("Loaded {} services into cache", response.getData().size());
     }
 
     private void loadDatabases() {
-        List<OrdaDbDto> databases = ordaService.getDatabases();
-        databases.forEach(ordaCache::putDatabase);
-        log.info("Loaded {} databases into cache", databases.size());
+        OrdaDatabaseResponseDto response = ordaService.getDatabases();
+        response.getData().forEach(ordaCache::putDatabase);
+        log.info("Loaded {} databases into cache", response.getData().size());
     }
 
     private void loadSchemas() {
-        List<OrdaDatabaseSchemaDto> schemas = ordaService.getSchemas();
-        schemas.forEach(ordaCache::putSchema);
-        log.info("Loaded {} schemas into cache", schemas.size());
+        OrdaSchemasResponseDto response = ordaService.getSchemas();
+        response.getData().forEach(ordaCache::putSchema);
+        log.info("Loaded {} schemas into cache", response.getData().size());
     }
 
     private void loadTables() {

@@ -31,6 +31,13 @@ public class MetadataService {
         return basesRepository.findAllBySchema(schemaName).stream()
                 .collect(Collectors.toMap(DatabaseMetadataDto::getFqn, d -> d, (a, b) -> a));
     }
+    /**
+     * Получение всех баз данных из указанной схемы и источника
+     */
+    public Map<String, DatabaseMetadataDto> getAllDatabasesBySchemaAndService(String schemaName, String source) {
+        return basesRepository.findAllBySchemaAndService(schemaName, source).stream()
+                .collect(Collectors.toMap(DatabaseMetadataDto::getFqn, d -> d, (a, b) -> a));
+    }
 
     /**
      * Получение всех схем из указанной схемы
@@ -39,12 +46,26 @@ public class MetadataService {
         return schemasRepository.findAllBySchema(schemaName).stream()
                 .collect(Collectors.toMap(SchemaMetadataDto::getFqn, s -> s, (a, b) -> a));
     }
+  /**
+     * Получение всех схем из указанной схемы и источника
+     */
+    public Map<String, SchemaMetadataDto> getAllSchemasBySchemaAndService(String schemaName, String source) {
+        return schemasRepository.findAllBySchemaAndService(schemaName, source).stream()
+                .collect(Collectors.toMap(SchemaMetadataDto::getFqn, s -> s, (a, b) -> a));
+    }
 
     /**
      * Получение всех таблиц из указанной схемы
      */
     public Map<String, TableMetadataDto> getAllTablesBySchema(String schemaName) {
         return tablesRepository.findAllBySchema(schemaName).stream()
+                .collect(Collectors.toMap(TableMetadataDto::getFqn, t -> t, (a, b) -> a));
+    }
+   /**
+     * Получение всех таблиц из указанной схемы
+     */
+    public Map<String, TableMetadataDto> getAllTablesBySchemaAndService(String schemaName, String source) {
+        return tablesRepository.findAllBySchemaAndService(schemaName, source).stream()
                 .collect(Collectors.toMap(TableMetadataDto::getFqn, t -> t, (a, b) -> a));
     }
 
@@ -56,5 +77,14 @@ public class MetadataService {
         Map<String, DatabaseMetadataDto> allDatabasesBySchema = getAllDatabasesBySchema(schemaName);
         Map<String, SchemaMetadataDto> allSchemasBySchema = getAllSchemasBySchema(schemaName);
         Map<String, TableMetadataDto> allTablesBySchema = getAllTablesBySchema(schemaName);
+    }
+   /**
+     * Комплексный метод: получить всё (базы, схемы, таблицы)
+     * создал для теста , чтоб проверить берутся ли нормально данные  из целевой бд
+     */
+    public void getAllMetadata(String schemaName, String source) {
+        Map<String, DatabaseMetadataDto> allDatabasesBySchema = getAllDatabasesBySchemaAndService(schemaName, source);
+        Map<String, SchemaMetadataDto> allSchemasBySchema = getAllSchemasBySchemaAndService(schemaName, source);
+        Map<String, TableMetadataDto> allTablesBySchema = getAllTablesBySchemaAndService(schemaName, source);
     }
 }

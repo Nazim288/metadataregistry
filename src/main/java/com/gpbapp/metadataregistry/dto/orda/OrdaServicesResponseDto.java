@@ -6,6 +6,17 @@ import java.util.List;
 public class OrdaServicesResponseDto {
     private List<OrdaServiceDto> data;
 
+    public OrdaPagingDto getPaging() {
+        return paging;
+    }
+
+    public void setPaging(OrdaPagingDto paging) {
+        this.paging = paging;
+    }
+
+    private OrdaPagingDto paging;
+
+
     public OrdaServicesResponseDto(List<OrdaServiceDto> data) {
         this.data = data;
     }

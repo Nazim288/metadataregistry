@@ -40,7 +40,8 @@ public class PostgresOrdaSyncStrategy implements OrdaSyncStrategy {
     public void sync() {
         log.info("Start syncing Postgres metadata to Orda...");
         Map<String, DatabaseMetadataDto> dbs = metadataService.getAllDatabasesBySchema("postgres_metadata");
-         // --- сервисы сперва
+
+         // --- сервисы сперва, беру их из дб
         Set<String> serviceNames = dbs.values().stream()
                 .map(DatabaseMetadataDto::getServiceName)
                 .collect(Collectors.toSet());
@@ -58,7 +59,7 @@ public class PostgresOrdaSyncStrategy implements OrdaSyncStrategy {
             }
         });
 
-        // --- 1. Базы ---
+        // --- Базы ---
         dbs.values().forEach(db -> {
             if (!ordaCache.getDatabases().containsKey(db.getFqn())) {
                 OrdaBaseCreateDto dto = new OrdaBaseCreateDto();
@@ -71,7 +72,7 @@ public class PostgresOrdaSyncStrategy implements OrdaSyncStrategy {
             }
         });
 
-        // --- 2. Схемы ---
+        // -- Схемы ---
         Map<String, SchemaMetadataDto> schemas = metadataService.getAllSchemasBySchema("postgres_metadata");
         schemas.values().forEach(schema -> {
             if (!ordaCache.getSchemas().containsKey(schema.getFqn())) {
@@ -85,7 +86,7 @@ public class PostgresOrdaSyncStrategy implements OrdaSyncStrategy {
             }
         });
 
-        // --- 3. Таблицы ---
+        // --- Таблицы ---
         Map<String, TableMetadataDto> tables = metadataService.getAllTablesBySchema("postgres_metadata");
         tables.values().forEach(table -> {
             if (!ordaCache.getTables().containsKey(table.getFqn())) {

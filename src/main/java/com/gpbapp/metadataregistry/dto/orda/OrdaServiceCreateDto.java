@@ -1,6 +1,13 @@
 package com.gpbapp.metadataregistry.dto.orda;
 
 public class OrdaServiceCreateDto {
+
+    private String name;
+    private String serviceType;
+    private OrdaConfigCreateDto connection = new OrdaConfigCreateDto();
+    private String description;
+    private String displayName;
+
     public String getName() {
         return name;
     }
@@ -41,12 +48,8 @@ public class OrdaServiceCreateDto {
         this.displayName = displayName;
     }
 
-    private String name;
-    private String serviceType;
-    private OrdaConfigCreateDto connection;
-    private String description;
-    private String displayName;
-
     public OrdaServiceCreateDto() {
     }
+
+
 }

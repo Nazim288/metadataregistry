@@ -1,6 +1,5 @@
 package com.gpbapp.metadataregistry.service;
 
-import com.gpbapp.metadataregistry.dto.*;
 import com.gpbapp.metadataregistry.dto.orda.OrdaDatabaseSchemaDto;
 import com.gpbapp.metadataregistry.dto.orda.OrdaDbDto;
 import com.gpbapp.metadataregistry.dto.orda.OrdaServiceDto;
@@ -10,10 +9,6 @@ import org.springframework.stereotype.Service;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
-import org.springframework.stereotype.Service;
-
-import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
 
 @Service
 public class OrdaCache {
