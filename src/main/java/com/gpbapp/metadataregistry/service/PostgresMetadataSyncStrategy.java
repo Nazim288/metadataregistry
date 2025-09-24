@@ -25,15 +25,13 @@ public class PostgresMetadataSyncStrategy implements MetaSyncStrategy {
 
     private final MetadataService metadataService;
     private final OrdaService ordaService;
-    private final MetadataCache metadataCache;
-    private final OrdaCache ordaCache;
+    private final MetadataPgCache metadataPgCache;
     private final MetadataSchemasProperties properties;
 
-    public PostgresMetadataSyncStrategy(MetadataService metadataService, OrdaService ordaService, MetadataCache metadataCache, OrdaCache ordaCache, MetadataSchemasProperties properties) {
+    public PostgresMetadataSyncStrategy(MetadataService metadataService, OrdaService ordaService, MetadataPgCache metadataPgCache, MetadataSchemasProperties properties) {
         this.metadataService = metadataService;
         this.ordaService = ordaService;
-        this.metadataCache = metadataCache;
-        this.ordaCache = ordaCache;
+        this.metadataPgCache = metadataPgCache;
         this.properties = properties;
     }
 
@@ -44,88 +42,67 @@ public class PostgresMetadataSyncStrategy implements MetaSyncStrategy {
 
     @Override
     public ResponseEntity<String> sync(String source) {
-        log.info(String.format("Start syncing Postgres service %s metadata with Orda...", source));
+        long start = System.currentTimeMillis();
+        log.info("Start syncing Postgres service {} metadata with Orda...", source);
         final String postgresSchema = properties.getPostgres();
 
-        // --- 1. Сервисы ---
-        Map<String, DatabaseMetadataDto> dbs = metadataService.getAllDatabasesBySchemaAndService(postgresSchema, source);
-        if (dbs.isEmpty()) {
+        // --- 1. Базы ---
+        Map<String, DatabaseMetadataDto> freshDbs = metadataService.getAllDatabasesBySchemaAndService(postgresSchema, source);
+        if (freshDbs.isEmpty()) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND)
                     .body("Нет баз для сервиса " + source + " в схеме " + postgresSchema);
         }
 
-        Set<String> serviceNames = dbs.values().stream()
-                .map(DatabaseMetadataDto::getServiceName)
-                .collect(Collectors.toSet());
-
-        serviceNames.forEach(serviceName -> {
-            OrdaServiceDto cached = ordaCache.getService(serviceName);
-            if (cached == null) {
-                OrdaServiceCreateDto dto = new OrdaServiceCreateDto();
-                dto.setName(serviceName);
-                dto.setServiceType(OrdaBaseType.POSTGRES.getServiceType());
-                dto.setDescription("Auto-synced Postgres service " + serviceName);
-
-                OrdaServiceDto created = ordaService.createService(dto);
-                ordaCache.putService(created);
-                log.info("Created service {}", serviceName);
-            } else {
-                log.debug("Service {} already exists, skip", serviceName);
-            }
-        });
-
-        // --- 2. Базы ---
-        Map<String, DatabaseMetadataDto> freshDbs = dbs;
+        // upsert dbs
         freshDbs.values().forEach(db -> {
-            DatabaseMetadataDto cached = metadataCache.getDatabases().get(db.getFqn());
+            DatabaseMetadataDto cached = metadataPgCache.getDatabases().get(db.getFqn());
             if (cached == null || !Objects.equals(cached.getHashData(), db.getHashData())) {
                 OrdaBaseCreateDto dto = new OrdaBaseCreateDto();
                 dto.setName(db.getName());
                 dto.setService(db.getServiceName());
 
                 ordaService.updateDatabase(dto);
-                metadataCache.putDatabase(db);
+                metadataPgCache.putDatabase(db);
                 log.info("Upsert database {} in service {}", db.getName(), db.getServiceName());
             }
         });
-        // Удаление баз
+        // delete dbs
         Set<String> freshDbFqns = freshDbs.keySet();
-        Set<String> cachedDbFqns = new HashSet<>(metadataCache.getDatabases().keySet());
+        Set<String> cachedDbFqns = new HashSet<>(metadataPgCache.getDatabases().keySet());
         cachedDbFqns.removeAll(freshDbFqns);
         cachedDbFqns.forEach(fqn -> {
             ordaService.deleteDatabaseSoftRecursive(fqn);
-            metadataCache.getDatabases().remove(fqn);
+            metadataPgCache.getDatabases().remove(fqn);
             log.info("Soft recursive delete database {}", fqn);
         });
 
-        // --- 3. Схемы ---
+        // --- 2. Схемы ---
         Map<String, SchemaMetadataDto> freshSchemas = metadataService.getAllSchemasBySchemaAndService(postgresSchema, source);
         freshSchemas.values().forEach(schema -> {
-            SchemaMetadataDto cached = metadataCache.getSchemas().get(schema.getFqn());
+            SchemaMetadataDto cached = metadataPgCache.getSchemas().get(schema.getFqn());
             if (cached == null || !Objects.equals(cached.getHashData(), schema.getHashData())) {
                 OrdaSchemaCreateDTO dto = new OrdaSchemaCreateDTO();
                 dto.setName(schema.getName());
                 dto.setDatabase(schema.getParent_fqn());
 
                 ordaService.updateSchema(dto);
-                metadataCache.putSchema(schema);
+                metadataPgCache.putSchema(schema);
                 log.info("Upsert schema {} in database {}", schema.getName(), schema.getDbName());
             }
         });
-        // Удаление схем
         Set<String> freshSchemaFqns = freshSchemas.keySet();
-        Set<String> cachedSchemaFqns = new HashSet<>(metadataCache.getSchemas().keySet());
+        Set<String> cachedSchemaFqns = new HashSet<>(metadataPgCache.getSchemas().keySet());
         cachedSchemaFqns.removeAll(freshSchemaFqns);
         cachedSchemaFqns.forEach(fqn -> {
             ordaService.deleteSchemaSoftRecursive(fqn);
-            metadataCache.getSchemas().remove(fqn);
+            metadataPgCache.getSchemas().remove(fqn);
             log.info("Soft recursive delete schema {}", fqn);
         });
 
-        // --- 4. Таблицы ---
+        // --- 3. Таблицы ---
         Map<String, TableMetadataDto> freshTables = metadataService.getAllTablesBySchemaAndService(postgresSchema, source);
         freshTables.values().forEach(table -> {
-            TableMetadataDto cached = metadataCache.getTables().get(table.getFqn());
+            TableMetadataDto cached = metadataPgCache.getTables().get(table.getFqn());
             if (cached == null || !Objects.equals(cached.getHashData(), table.getHashData())) {
                 OrdaTableCreateDTO tableDto = new OrdaTableCreateDTO();
                 tableDto.setName(table.getName());
@@ -144,29 +121,31 @@ public class PostgresMetadataSyncStrategy implements MetaSyncStrategy {
                 );
 
                 ordaService.updateTable(tableDto);
-                metadataCache.putTable(table);
+                metadataPgCache.putTable(table);
                 log.info("Upsert table {} in schema {}", table.getName(), table.getSchemaName());
             }
         });
-        // Удаление таблиц
         Set<String> freshTableFqns = freshTables.keySet();
-        Set<String> cachedTableFqns = new HashSet<>(metadataCache.getTables().keySet());
+        Set<String> cachedTableFqns = new HashSet<>(metadataPgCache.getTables().keySet());
         cachedTableFqns.removeAll(freshTableFqns);
         cachedTableFqns.forEach(fqn -> {
             ordaService.deleteTableSoftRecursive(fqn);
-            metadataCache.getTables().remove(fqn);
+            metadataPgCache.getTables().remove(fqn);
             log.info("Soft recursive delete table {}", fqn);
         });
 
-        int servicesCount = serviceNames.size();
         int dbsCount = freshDbs.size();
         int schemasCount = freshSchemas.size();
         int tablesCount = freshTables.size();
+        int servicesCount = freshDbs.values().stream()
+                .map(DatabaseMetadataDto::getServiceName)
+                .collect(Collectors.toSet())
+                .size();
 
+        long duration = System.currentTimeMillis() - start;
         String message = String.format(
-                "Синхронизация завершена успешно для сервиса %s: " +
-                        "сервисов=%d, баз=%d, схем=%d, таблиц=%d",
-                source, servicesCount, dbsCount, schemasCount, tablesCount
+                "Синхронизация завершена успешно для сервиса %s: сервисов=%d, баз=%d, схем=%d, таблиц=%d (время=%d мс)",
+                source, servicesCount, dbsCount, schemasCount, tablesCount, duration
         );
 
         log.info(message);

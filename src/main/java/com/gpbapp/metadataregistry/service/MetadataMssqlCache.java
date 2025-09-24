@@ -12,7 +12,7 @@ import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
 @Service
-public class MetadataCache {
+public class MetadataMssqlCache {
 
     private final MetadataBasesRepository basesRepository;
     private final MetadataSchemasRepository schemasRepository;
@@ -22,9 +22,9 @@ public class MetadataCache {
     private final Map<String, SchemaMetadataDto> schemas = new ConcurrentHashMap<>();
     private final Map<String, TableMetadataDto> tables = new ConcurrentHashMap<>();
 
-    public MetadataCache(MetadataBasesRepository basesRepository,
-                         MetadataSchemasRepository schemasRepository,
-                         MetadataTablesRepository tablesRepository) {
+    public MetadataMssqlCache(MetadataBasesRepository basesRepository,
+                              MetadataSchemasRepository schemasRepository,
+                              MetadataTablesRepository tablesRepository) {
         this.basesRepository = basesRepository;
         this.schemasRepository = schemasRepository;
         this.tablesRepository = tablesRepository;
@@ -73,7 +73,7 @@ public class MetadataCache {
     }
 
     /**
-     * Полная загрузка кеша из БД
+     * Полная загрузка кеша из БД (для MSSQL схемы)
      */
     public String loadAll(String schemaName) {
         clearAll();
@@ -83,16 +83,14 @@ public class MetadataCache {
                 .forEach(this::putSchema);
         tablesRepository.findAllBySchema(schemaName)
                 .forEach(this::putTable);
-       return getSize();
+        return getSize();
     }
 
     public String getSize() {
-
         return String.format(
                 "{ \"bases\": %d, \"schemas\": %d, \"tables\": %d }",
                 databases.size(), schemas.size(), tables.size()
         );
-
     }
 }
 

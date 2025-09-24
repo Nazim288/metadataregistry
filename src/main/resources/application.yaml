@@ -5,41 +5,19 @@ spring:
   application:
     name: metadataregistry
   datasource:
-    url: jdbc:postgresql://localhost:5432/meta_db
-    username: postgres
-    password: kampus
+    url: jdbc:postgresql://${DB_HOST:localhost}:${DB_PORT:5432}/${DB_NAME:meta_base}
+    username: ${DB_USER:postgres}
+    password: ${DB_PASSWORD:kampus}
     driver-class-name: org.postgresql.Driver
 
-  jpa:
-    hibernate:
-      ddl-auto: none   # validate / update / create / create-drop
-    properties:
-      hibernate:
-        dialect: org.hibernate.dialect.PostgreSQLDialect
-    show-sql: true
-
-# ????????? ????????? RestTemplate (????? HttpClient)
-#http:
-#  client:
-#    connect-timeout: 5000   # 5 ??????
-#    read-timeout: 10000     # 10 ??????
-
-# URL ??? Orda API
 orda:
-  base-url: http://localhost:8585
-  token: eyJraWQiOiJHYjM4OWEtOWY3Ni1nZGpzLWE5MmotMDI0MmJrOTQzNTYiLCJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJvcGVuLW1ldGFkYXRhLm9yZyIsInN1YiI6Im5iMjg4IiwiZW1haWwiOiJuYjI4OEBiay5ydSIsImlzQm90Ijp0cnVlLCJ0b2tlblR5cGUiOiJCT1QiLCJpYXQiOjE3NTg0Nzc1NTEsImV4cCI6bnVsbH0.jDuKGOWN46kcTklWiq1z9Kgo7uqnQwo6AGCP98DJbhDaLE3gZ4660ZdyhNzP_f-25pkO9W-43vnT2XRs1Q465rOf7bavRC8EWzsC79peo4AkWWsaum9LemQCkBuRUxg10PgmBtem2H38BHqO2wKYvDM00Rn0StKoMWNgxbn63Qsi2HCaa68-q6sXLxIYqQQsVvgfmr2gL0sAkAXWyw045P8jx7U08QO7lQYcLCcBtNhMozMnKt59OmIqjhxpD3ZLG-3WeQ2fk2CQNHsLgYqoqM9x5k8OOVCeuBOsgyhx8mTefLJqY_QE8TphM1VFpRn_sBqTxZlz_Rbl08Q_CFWSNg
+  base-url: ${ORDA_BASE_URL:http://localhost:8585}
+  token: ${ORDA_TOKEN:eyJraWQiOiJHYjM4OWEtOWY3Ni1nZGpzLWE5MmotMDI0MmJrOTQzNTYiLCJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJvcGVuLW1ldGFkYXRhLm9yZyIsInN1YiI6InN2cy5uaWsiLCJlbWFpbCI6InN2cy5uaWtAYmsucnUiLCJpc0JvdCI6dHJ1ZSwidG9rZW5UeXBlIjoiQk9UIiwiaWF0IjoxNzU4NjM0OTIwLCJleHAiOm51bGx9.cwd4fWny1M-ljVLGMVFkqPuWewiTuLI6_DCLty3bEEJIn1c6eVLThFwFJpctaldnGye25j-vW7gPyd3sDyckoun-JIuuhWoz3C8D21fHGXrKGeVS5AI4KAdRNR5t4kAlosdPw4keMHxxMsTL9AS33ZU8BTEGQ0SVdlnmYKWZuEUswxZ81rZADQC7wKqDdfi5SbNPtYHYmRME_muBYyFMh_XqVUhp6eBfhXEracqyETVhLE47uZ_sJ65WLFT0ifjFZSdPhQuGpKQpAovLLpJt59hURL1BMUbaEWn8ZOf9N3gcJpaAMaHXSiuyoFvI78aZkKVslZ1nkEEjTXyehMnsDQ}
   endpoints:
-    get:
-      services: /api/v1/services/databaseServices
-      databases: /api/v1/databases
-      schemas: /api/v1/databaseSchemas
-      tables: /api/v1/tables
-
-    post:
-      databases: /api/v1/databases
-      schemas: /api/v1/databaseSchemas
-      tables: /api/v1/tables
-      services: /api/v1/services/databaseServices
+    databases: /api/v1/databases
+    schemas: /api/v1/databaseSchemas
+    tables: /api/v1/tables
+    services: /api/v1/services/databaseServices
 
 schemas:
   postgres: postgres_metadata

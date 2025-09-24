@@ -1,6 +1,7 @@
 package com.gpbapp.metadataregistry.config;
 
 
+import com.gpbapp.metadataregistry.exceptions.RestTemplateResponseErrorHandler;
 import com.gpbapp.metadataregistry.properties.HttpClientProperties;
 import com.gpbapp.metadataregistry.properties.OrdaProperties;
 import org.apache.hc.client5.http.config.RequestConfig;
@@ -23,6 +24,10 @@ public class RestTemplateConfig {
     private final OrdaProperties ordaProperties;
     private final HttpClientProperties httpClientProperties;
 
+    public RestTemplateConfig(OrdaProperties ordaProperties, HttpClientProperties httpClientProperties) {
+        this.ordaProperties = ordaProperties;
+        this.httpClientProperties = httpClientProperties;
+    }
 
     @Bean
     public RestTemplate ordaRestTemplate() {
@@ -40,9 +45,7 @@ public class RestTemplateConfig {
 
         RestTemplate restTemplate = new RestTemplate(requestFactory);
 
-        restTemplate.setUriTemplateHandler(
-                new DefaultUriBuilderFactory(ordaProperties.getBaseUrl())
-        );
+        restTemplate.setUriTemplateHandler(new DefaultUriBuilderFactory(ordaProperties.getBaseUrl()));
 
         restTemplate.getInterceptors().add((request, body, execution) -> {
             HttpHeaders headers = request.getHeaders();
@@ -58,11 +61,8 @@ public class RestTemplateConfig {
             return execution.execute(request, body);
         });
 
-        return restTemplate;
+        restTemplate.setErrorHandler(new RestTemplateResponseErrorHandler());
 
-    }
-    public RestTemplateConfig(OrdaProperties ordaProperties, HttpClientProperties httpClientProperties) {
-        this.ordaProperties = ordaProperties;
-        this.httpClientProperties = httpClientProperties;
+        return restTemplate;
     }
 }

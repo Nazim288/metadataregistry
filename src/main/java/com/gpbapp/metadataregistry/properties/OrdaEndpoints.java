@@ -3,9 +3,9 @@ package com.gpbapp.metadataregistry.properties;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.stereotype.Component;
 
-@ConfigurationProperties(prefix = "orda.endpoints.post")
+@ConfigurationProperties(prefix = "orda.endpoints")
 @Component
-public class OrdaEndpointsPost {
+public class OrdaEndpoints {
     private String databases;
     private String services;
     private String schemas;
@@ -50,6 +50,6 @@ public class OrdaEndpointsPost {
         this.tables = tables;
     }
 
-    public OrdaEndpointsPost() {
+    public OrdaEndpoints() {
     }
 }
