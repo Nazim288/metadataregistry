@@ -1,6 +1,9 @@
 package com.gpbapp.metadataregistry.dto.orda;
 
 public class OrdaSchemaCreateDTO {
+    private String name;
+    private String database;
+
     public String getName() {
         return name;
     }
@@ -17,8 +20,10 @@ public class OrdaSchemaCreateDTO {
         this.database = database;
     }
 
-    private String name;
-    private String database;
+    public OrdaSchemaCreateDTO(String name, String database) {
+        this.name = name;
+        this.database = database;
+    }
 
     public OrdaSchemaCreateDTO() {
     }

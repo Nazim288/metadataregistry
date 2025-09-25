@@ -1,6 +1,14 @@
 package com.gpbapp.metadataregistry.dto.orda;
 
 public class OrdaColumnCreateDto {
+
+    private String name;         // имя колонки
+    private String dataType;     // тип данных (INT, VARCHAR и т.п.)
+    private String constraint;   // PRIMARY_KEY, UNIQUE, NOT_NULL, NULL (опционально)
+    private String description;  // описание (опционально)
+    private Integer dataLength;  // описание (опционально)
+
+
     public String getName() {
         return name;
     }
@@ -33,10 +41,6 @@ public class OrdaColumnCreateDto {
         this.description = description;
     }
 
-    private String name;         // имя колонки
-    private String dataType;     // тип данных (INT, VARCHAR и т.п.)
-    private String constraint;   // PRIMARY_KEY, UNIQUE, NOT_NULL, NULL (опционально)
-    private String description;  // описание (опционально)
 
     public Integer getDataLength() {
         return dataLength;
@@ -46,9 +50,21 @@ public class OrdaColumnCreateDto {
         this.dataLength = dataLength;
     }
 
-    private Integer dataLength;  // описание (опционально)
-
-
     public OrdaColumnCreateDto() {
+    }
+
+    public OrdaColumnCreateDto(String name, String dataType, String constraint, String description, Integer dataLength) {
+        this.name = name;
+        this.dataType = dataType;
+        this.constraint = constraint;
+        this.description = description;
+        this.dataLength = dataLength;
+    }
+
+    public OrdaColumnCreateDto(String dataType, String constraint, String description, Integer dataLength) {
+        this.dataType = dataType;
+        this.constraint = constraint;
+        this.description = description;
+        this.dataLength = dataLength;
     }
 }

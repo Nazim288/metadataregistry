@@ -35,7 +35,6 @@ public class MetadataTablesRepository {
                hash_data,
                created_at
         FROM %s.table_metadata
-        ORDER BY created_at DESC
     """;
 
     /**
@@ -72,7 +71,6 @@ public class MetadataTablesRepository {
                    created_at
             FROM %s.table_metadata
             WHERE service_name = ?
-            ORDER BY created_at DESC
         """, schemaName);
 
         return jdbcTemplate.query(sql, ps -> ps.setString(1, serviceName), (rs, rowNum) -> mapRow(rs));

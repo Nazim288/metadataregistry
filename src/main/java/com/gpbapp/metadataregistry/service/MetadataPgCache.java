@@ -3,9 +3,6 @@ package com.gpbapp.metadataregistry.service;
 import com.gpbapp.metadataregistry.dto.metadata.DatabaseMetadataDto;
 import com.gpbapp.metadataregistry.dto.metadata.SchemaMetadataDto;
 import com.gpbapp.metadataregistry.dto.metadata.TableMetadataDto;
-import com.gpbapp.metadataregistry.pepository.MetadataBasesRepository;
-import com.gpbapp.metadataregistry.pepository.MetadataSchemasRepository;
-import com.gpbapp.metadataregistry.pepository.MetadataTablesRepository;
 import org.springframework.stereotype.Service;
 
 import java.util.Map;
@@ -13,22 +10,9 @@ import java.util.concurrent.ConcurrentHashMap;
 
 @Service
 public class MetadataPgCache {
-
-    private final MetadataBasesRepository basesRepository;
-    private final MetadataSchemasRepository schemasRepository;
-    private final MetadataTablesRepository tablesRepository;
-
     private final Map<String, DatabaseMetadataDto> databases = new ConcurrentHashMap<>();
     private final Map<String, SchemaMetadataDto> schemas = new ConcurrentHashMap<>();
     private final Map<String, TableMetadataDto> tables = new ConcurrentHashMap<>();
-
-    public MetadataPgCache(MetadataBasesRepository basesRepository,
-                           MetadataSchemasRepository schemasRepository,
-                           MetadataTablesRepository tablesRepository) {
-        this.basesRepository = basesRepository;
-        this.schemasRepository = schemasRepository;
-        this.tablesRepository = tablesRepository;
-    }
 
     public void putDatabase(DatabaseMetadataDto db) {
         databases.put(db.getFqn(), db);
@@ -70,20 +54,6 @@ public class MetadataPgCache {
         databases.clear();
         schemas.clear();
         tables.clear();
-    }
-
-    /**
-     * Полная загрузка кеша из БД
-     */
-    public String loadAll(String schemaName) {
-        clearAll();
-        basesRepository.findAllBySchema(schemaName)
-                .forEach(this::putDatabase);
-        schemasRepository.findAllBySchema(schemaName)
-                .forEach(this::putSchema);
-        tablesRepository.findAllBySchema(schemaName)
-                .forEach(this::putTable);
-       return getSize();
     }
 
     public String getSize() {
