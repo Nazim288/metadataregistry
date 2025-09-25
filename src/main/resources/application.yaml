@@ -32,3 +32,5 @@ http:
 logging:
   level:
     root: INFO
+    reactor.netty.http.server.HttpServerOperations: ERROR
+

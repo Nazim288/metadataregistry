@@ -1,25 +1,36 @@
 package com.gpbapp.metadataregistry.dto.metadata;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.fasterxml.jackson.annotation.JsonProperty;
+
+@JsonIgnoreProperties(ignoreUnknown = true)
 public class TableColumnDto {
-    /**
-     * Полное имя колонки (FQN)
-     */
     private String fqn;
-
-    /**
-     * Тип данных колонки (например: varchar, int4)
-     */
+    private String name;
     private String dtype;
-
-    /**
-     * Длина данных (для varchar, char и т.д.), может быть null
-     */
-    private Integer dataLength;
-
-    /**
-     * Описание колонки
-     */
+    private Integer dataLength = 0;
     private String description;
+    private String dataType;
+    @JsonProperty("is_nullable")
+    private Boolean isNullable;
+
+    public String getDataType() {
+        return dataType;
+    }
+
+    public void setDataType(String dataType) {
+        this.dataType = dataType;
+    }
+
+    public Boolean getNullable() {
+        return isNullable;
+    }
+
+    public void setNullable(Boolean nullable) {
+        isNullable = nullable;
+    }
+
+
 
     public TableColumnDto() {
     }
@@ -54,5 +65,12 @@ public class TableColumnDto {
 
     public void setDescription(String description) {
         this.description = description;
+    }
+    public String getName() {
+        return name;
+    }
+
+    public void setName(String name) {
+        this.name = name;
     }
 }

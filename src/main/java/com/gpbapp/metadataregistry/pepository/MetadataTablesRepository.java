@@ -5,13 +5,14 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.gpbapp.metadataregistry.dto.metadata.TableDataDto;
 import com.gpbapp.metadataregistry.dto.metadata.TableMetadataDto;
 import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.stereotype.Repository;
 import org.springframework.stereotype.Service;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.List;
 
-@Service
+@Repository
 public class MetadataTablesRepository {
 
     private final JdbcTemplate jdbcTemplate;
@@ -76,6 +77,9 @@ public class MetadataTablesRepository {
         return jdbcTemplate.query(sql, ps -> ps.setString(1, serviceName), (rs, rowNum) -> mapRow(rs));
     }
 
+    /**
+     * Маппинг строки ResultSet → TableMetadataDto
+     */
     private TableMetadataDto mapRow(ResultSet rs) throws SQLException {
         String jsonData = rs.getString("data");
         TableDataDto data = null;

@@ -172,18 +172,21 @@ public class PostgresMetadataSyncStrategy implements MetaSyncStrategy {
         dto.setName(tbl.getName());
         dto.setDatabaseSchema(tbl.getParentFqn());
         dto.setDescription(tbl.getDescription());
+
         dto.setColumns(tbl.getData().getColumns().stream()
                 .map(c -> {
                     OrdaColumnCreateDto col = new OrdaColumnCreateDto();
-                    col.setName(c.getFqn().substring(c.getFqn().lastIndexOf('.') + 1));
-                    col.setDataType(OrdaColumnType.map(c.getDtype())); // маппер твоего типа в строку
-                    col.setConstraint(null); // если будешь доставать constraint из метаданных, можно подставить
+                    col.setName(c.getName()); // короткое имя
+                    col.setDataType(OrdaColumnType.map(c.getDataType()));
+                    col.setConstraint(c.getNullable() != null && !c.getNullable() ? "NOT_NULL" : "NULL");
                     col.setDescription(c.getDescription());
-                    col.setDataLength(c.getDataLength());
+                    col.setDataLength(c.getDataLength() != null ? c.getDataLength() : 0);
+
                     return col;
                 })
                 .toList()
         );
+
         return dto;
     }
 

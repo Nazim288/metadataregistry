@@ -6,7 +6,7 @@ public class OrdaColumnCreateDto {
     private String dataType;     // тип данных (INT, VARCHAR и т.п.)
     private String constraint;   // PRIMARY_KEY, UNIQUE, NOT_NULL, NULL (опционально)
     private String description;  // описание (опционально)
-    private Integer dataLength;  // описание (опционально)
+    private Integer dataLength = 0;  // описание (опционально)
 
 
     public String getName() {
